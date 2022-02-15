@@ -27,7 +27,7 @@ function Convert-FB2 {
             # performing xslt transform
             $xslt = New-Object Xml.Xsl.XslCompiledTransform
             'index.xhtml', 'content.opf', 'toc.ncx' | ForEach-Object {
-                try { $xslt.Load("$PSScriptRoot\$_.xsl") } catch { Write-Host $Error -ForegroundColor Red; exit 1 }
+                try { $xslt.Load("$PSScriptRoot\$_.xsl") } catch { throw $Error }
                 $xslt.Transform($item.FullName, "$dir\$_")
             }
             Clear-Variable -Name xslt
