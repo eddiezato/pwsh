@@ -7,9 +7,9 @@ function Convert-Fb2 {
     # preparing working folder
     $ItemDir = Join-Path -Path $TempDir -ChildPath $Item.BaseName
     New-Item -Path $ItemDir -ItemType Directory | Out-Null
-    # performing xslt transform
     Write-Host (Get-Date).ToLongTimeString().PadLeft(9, ' ') -NoNewline -ForegroundColor DarkGray
     Write-Host ' Creating opf/xhtml/ncx.. ' -NoNewline
+    # convert fb2 to opf,xhtml,ncx
     $xslt = New-Object Xml.Xsl.XslCompiledTransform
     'index.xhtml', 'content.opf', 'toc.ncx' | ForEach-Object {
         try { $xslt.Load("$PSScriptRoot\$_.xsl") } catch { Write-Host 'failed' -ForegroundColor Red; return $null }
@@ -76,7 +76,6 @@ function Convert-Fb2ePub {
     }
     process {
         $Path | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | ForEach-Object {
-            # convert fb2 to opf,xhtml,ncx
             $file = Get-Item -LiteralPath $_
             Write-Host $file.Name -ForegroundColor Magenta
             if ($dir = Convert-Fb2 -Item $file -TempDir $tempd -SeqInTitle:$SequenceToTitle) {
@@ -117,10 +116,10 @@ function Convert-Fb2Mobi {
     }
     process {
         $Path | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | ForEach-Object {
-            # convert fb2 to opf,xhtml,ncx
             $file = Get-Item -LiteralPath $_
             Write-Host $file.Name -ForegroundColor Magenta
             if ($dir = Convert-Fb2 -Item $file -TempDir $tempd -SeqInTitle:$SequenceToTitle) {
+                # creating mobi
                 Write-Host (Get-Date).ToLongTimeString().PadLeft(9, ' ') -NoNewline -ForegroundColor DarkGray
                 Write-Host ' Converting to ' -NoNewLine
                 Write-Host 'Mobi' -NoNewLine -ForegroundColor Blue
