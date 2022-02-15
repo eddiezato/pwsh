@@ -23,9 +23,11 @@
                     </xsl:for-each>
                 </xsl:if>
                 <!-- BUILD TOC -->
-                <xsl:if test="$tocdepth &gt; 0 and count(//fb:body[not(@name) or @name != 'notes']//fb:title) &gt; 1">
-                    <ul id="TOC"><xsl:apply-templates select="fb:body" mode="toc"/></ul>
-                </xsl:if>
+                <div id="TOC">
+                    <xsl:if test="$tocdepth &gt; 0 and count(//fb:body[not(@name) or @name != 'notes']//fb:title) &gt; 1">
+                        <ul><xsl:apply-templates select="fb:body" mode="toc"/></ul>
+                    </xsl:if>
+                </div>
                 <!-- BUILD BOOK -->
                 <xsl:for-each select="fb:body">
                     <xsl:if test="position()!=1"><hr/></xsl:if>
