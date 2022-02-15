@@ -5,7 +5,7 @@
                 xmlns:fb="http://www.gribuser.ru/xml/fictionbook/2.0">
     <xsl:param name="tocdepth" select="3"/>
     <xsl:param name="toccut" select="1"/>
-    <xsl:param name="skipannotation" select="0"/>
+    <xsl:param name="addimage" select="0"/>
     <xsl:key name="note-link" match="fb:section" use="@id"/>
     <xsl:output method="xml" encoding="UTF-8"/>
 
@@ -16,19 +16,21 @@
                 <link rel="stylesheet" type="text/css" href="styles.css" />
             </head>
             <body>
-                <xsl:if test="$skipannotation = 0">
-                    <xsl:for-each select="fb:description/fb:title-info/fb:annotation">
-                        <div><xsl:call-template name="annotation"/></div>
-                        <hr/>
-                    </xsl:for-each>
+                <xsl:if test="$addimage &gt; 0">
+                    <xsl:apply-templates select="fb:description/fb:title-info/fb:coverpage/fb:image"/>
                 </xsl:if>
-                <!-- BUILD TOC -->
+                <!-- add annotation -->
+                <xsl:for-each select="fb:description/fb:title-info/fb:annotation">
+                    <div><xsl:call-template name="annotation"/></div>
+                    <hr/>
+                </xsl:for-each>
+                <!-- build TOC -->
                 <div id="TOC">
                     <xsl:if test="$tocdepth &gt; 0 and count(//fb:body[not(@name) or @name != 'notes']//fb:title) &gt; 1">
                         <ul><xsl:apply-templates select="fb:body" mode="toc"/></ul>
                     </xsl:if>
                 </div>
-                <!-- BUILD BOOK -->
+                <!-- build book -->
                 <xsl:for-each select="fb:body">
                     <xsl:if test="position()!=1"><hr/></xsl:if>
                     <xsl:if test="@name = 'notes' and not(fb:title)">
@@ -289,7 +291,12 @@
 
     <!-- image - block -->
     <xsl:template match="fb:image">
-        <div align="center">
+        <!-- <div align="center"> -->
+        <xsl:element name="div">
+            <xsl:if test="ancestor::fb:coverpage">
+                <xsl:attribute name="class">coverpage</xsl:attribute>
+            </xsl:if>
+            <xsl:attribute name="align">center</xsl:attribute>
             <xsl:element name="img">
                 <xsl:choose>
                     <xsl:when test="starts-with(@xlink:href,'#')">
@@ -303,7 +310,8 @@
                     <xsl:attribute name="title"><xsl:value-of select="@title"/></xsl:attribute>
                 </xsl:if>
             </xsl:element>
-        </div>
+        </xsl:element>
+        <!-- </div> -->
     </xsl:template>
 
     <!-- we preserve used ID's and drop unused ones -->

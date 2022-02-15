@@ -2,6 +2,7 @@ function Convert-Fb2 {
     param (
         [PSObject]$Item,
         [string]$TempDir,
+        [switch]$Cover = $false,
         [switch]$SeqInTitle = $false
     )
     # preparing working folder
@@ -12,7 +13,14 @@ function Convert-Fb2 {
     # convert fb2 to opf,xhtml,ncx
     $xslt = New-Object Xml.Xsl.XslCompiledTransform
     'index.xhtml', 'content.opf', 'toc.ncx' | ForEach-Object {
-        try { $xslt.Load("$PSScriptRoot\$_.xsl") } catch { Write-Host 'failed' -ForegroundColor Red; return $null }
+        try {
+            if ($Cover -and $_ -eq 'index.xhtml') {
+                $xsl = (Get-Content -LiteralPath "$PSScriptRoot\$_.xsl" -Raw) -as [xml]
+                ($xsl.stylesheet.param | Where-Object { $_.name -eq "addimage"}).select = 1
+                $xslt.Load($xsl)
+                Clear-Variable -Name xsl
+            } else { $xslt.Load("$PSScriptRoot\$_.xsl") }
+        } catch { Write-Host 'failed' -ForegroundColor Red; return $null }
         $xslt.Transform($Item.FullName, "$ItemDir\$_")
     }
     Clear-Variable -Name xslt
@@ -78,7 +86,7 @@ function Convert-Fb2ePub {
         $Path | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | ForEach-Object {
             $file = Get-Item -LiteralPath $_
             Write-Host $file.Name -ForegroundColor Magenta
-            if ($dir = Convert-Fb2 -Item $file -TempDir $tempd -SeqInTitle:$SequenceToTitle) {
+            if ($dir = Convert-Fb2 -Item $file -TempDir $tempd -Cover -SeqInTitle:$SequenceToTitle) {
                 # creating epub
                 Write-Host (Get-Date).ToLongTimeString().PadLeft(9, ' ') -NoNewline -ForegroundColor DarkGray
                 Write-Host ' Converting to ' -NoNewLine

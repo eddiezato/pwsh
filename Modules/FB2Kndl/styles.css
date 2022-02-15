@@ -49,6 +49,9 @@ ul {
 div.paragraph {
     text-indent: 2em;
 }
+div.coverpage {
+    page-break-after: always;
+}
 .subtitle {
     text-align: center;
 }
