@@ -291,7 +291,6 @@
 
     <!-- image - block -->
     <xsl:template match="fb:image">
-        <!-- <div align="center"> -->
         <xsl:element name="div">
             <xsl:if test="ancestor::fb:coverpage">
                 <xsl:attribute name="class">coverpage</xsl:attribute>
@@ -311,7 +310,6 @@
                 </xsl:if>
             </xsl:element>
         </xsl:element>
-        <!-- </div> -->
     </xsl:template>
 
     <!-- we preserve used ID's and drop unused ones -->
