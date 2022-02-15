@@ -1,0 +1,54 @@
+body {
+    text-align: justify;
+}
+h1 {
+    font-size: 160%;
+    font-style: normal;
+    font-weight: bold;
+    text-align: center;
+    page-break-before: always;
+}
+h2 {
+    font-size: 130%;
+    font-style: normal;
+    font-weight: bold;
+    text-align: center;
+    page-break-before: always;
+}
+h3, h4, h5 {
+    font-size: 110%;
+    font-style: normal;
+    font-weight: bold;
+    text-align: center;
+}
+h6 {
+    font-size: 100%;
+    font-style: italic;
+    font-weight: normal;
+    text-align: center;
+}
+small {
+    font-size: 80%;
+}
+blockquote {
+    margin-left: 4em;
+    margin-top: 1em;
+    margin-right: 0.2em;
+}
+hr {
+    color: black;
+}
+ul {
+    margin-left: 0;
+}
+.epigraph {
+    width: 75%;
+    margin-left: 25%;
+    font-style: italic;
+}
+div.paragraph {
+    text-indent: 2em;
+}
+.subtitle {
+    text-align: center;
+}
