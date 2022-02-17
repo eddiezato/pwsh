@@ -6,7 +6,6 @@
     <xsl:output method="xml" encoding="UTF-8"/>
     <xsl:param name="src-name" select="'index.xhtml'"/>
     <xsl:param name="tocdepth" select="3"/>
-    <xsl:param name="toccut" select="1"/>
     <xsl:key name="note-link" match="fb:section" use="@id"/>
     <xsl:template match="/*">
         <!--<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">-->
@@ -75,21 +74,7 @@
     <!-- toc template: title -->
     <xsl:template match="fb:title" mode="toc">
         <navPoint class="toc" id="{generate-id()}">
-            <navLabel>
-                <text>
-                    <xsl:choose>
-                        <xsl:when test="$toccut &gt; 0">
-                            <xsl:value-of select="normalize-space(fb:p[1])"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:for-each select="fb:title/fb:p">
-                                <xsl:if test="position()>1"><xsl:text> </xsl:text></xsl:if>
-                                <xsl:value-of select="normalize-space(.)"/>
-                            </xsl:for-each>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </text>
-            </navLabel>
+            <navLabel><text><xsl:value-of select="normalize-space(fb:p[1])"/></text></navLabel>
             <content src="{$src-name}#TOC_{generate-id()}"/>
         </navPoint>
     </xsl:template>

@@ -4,7 +4,6 @@
                 xmlns:xlink="http://www.w3.org/1999/xlink"
                 xmlns:fb="http://www.gribuser.ru/xml/fictionbook/2.0">
     <xsl:param name="tocdepth" select="3"/>
-    <xsl:param name="toccut" select="1"/>
     <xsl:param name="addimage" select="0"/>
     <xsl:key name="note-link" match="fb:section" use="@id"/>
     <xsl:output method="xml" encoding="UTF-8"/>
@@ -64,19 +63,7 @@
 
     <!-- toc template: title -->
     <xsl:template match="fb:title" mode="toc">
-        <a href="#TOC_{generate-id()}">
-            <xsl:choose>
-                <xsl:when test="$toccut &gt; 0">
-                    <xsl:value-of select="normalize-space(fb:p[1])"/>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:for-each select="fb:title/fb:p">
-                        <xsl:if test="position()>1"><xsl:text> </xsl:text></xsl:if>
-                        <xsl:value-of select="normalize-space(.)"/>
-                  </xsl:for-each>
-                </xsl:otherwise>
-            </xsl:choose>
-        </a>
+        <a href="#TOC_{generate-id()}"><xsl:value-of select="normalize-space(fb:p[1])"/></a>
     </xsl:template>
 
     <!-- description -->
