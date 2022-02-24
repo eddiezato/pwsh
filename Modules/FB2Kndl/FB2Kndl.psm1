@@ -4,7 +4,7 @@ function ConvertTo-xHtml {
         [string]$TempPath,
         [switch]$Cover = $false
     )
-    # preparing working folder
+    # prepare working folder
     $TargetPath = Join-Path -Path $TempPath -ChildPath ((New-Guid).Guid -replace '-', '')
     New-Item -Path $TargetPath -ItemType Directory | Out-Null
     Write-Host ' Creating opf/xhtml/ncx.. ' -NoNewline
@@ -22,7 +22,7 @@ function ConvertTo-xHtml {
     Write-Host 'ok' -ForegroundColor Green
     Clear-Variable -Name 'xslt'
     Copy-Item -LiteralPath (Join-Path -Path $PSScriptRoot -ChildPath 'styles.css') -Destination $TargetPath
-    # extracting images
+    # extract images
     $binary = ((Get-Content -LiteralPath $FB2Path -Raw) -as [xml]).FictionBook.binary -as [PSCustomObject]
     if ($binary.Count) {
         Write-Host ' Extracting images.. ' -NoNewline
@@ -46,9 +46,11 @@ function ConvertTo-Mobi {
     Write-Host ' Converting to ' -NoNewLine
     Write-Host 'Mobi' -NoNewLine -ForegroundColor Blue
     Write-Host '.. ' -NoNewline
+    # run kindlegen in background job
     $job = Start-Job -InputObject (Join-Path -Path $TargetPath -ChildPath 'content.opf') {
         & (Join-Path -Path $Using:PSScriptRoot -ChildPath 'kindlegen.exe') $input -c2 -dont_append_source -gen_ff_mobi7 -locale en
     }
+    # spinner
     $i = 0
     [Console]::CursorVisible = $false
     while ($job.State -eq 'Running') {
@@ -57,6 +59,7 @@ function ConvertTo-Mobi {
         Start-Sleep -s 0.2
     }
     [Console]::CursorVisible = $true
+    # check result
     $kg = Receive-Job $job
     $job | Remove-Job
     if ((($kg | Where-Object { $_ })[-1] -like '*Mobi file built*') -and (Test-Path -LiteralPath (Join-Path -Path $TargetPath -ChildPath 'content.mobi'))) {
@@ -82,9 +85,11 @@ function ConvertTo-ePub {
     Write-Host '.. ' -NoNewline
     New-Item -Path (Join-Path -Path $TargetPath -ChildPath 'META-INF') -ItemType Directory | Out-Null
     $metainf | Out-File -FilePath (Join-Path -Path $TargetPath -ChildPath 'META-INF' -AdditionalChildPath 'container.xml')
+    # first compress mimetype
     'application/epub+zip' | Out-File -FilePath (Join-Path -Path $TargetPath -ChildPath 'mimetype') -NoNewline
     Compress-Archive -LiteralPath (Join-Path -Path $TargetPath -ChildPath 'mimetype') -DestinationPath "$TargetPath.epub" -CompressionLevel NoCompression
     Remove-Item -LiteralPath (Join-Path -Path $TargetPath -ChildPath 'mimetype')
+    # then other things
     Compress-Archive -Path (Join-Path -Path $TargetPath -ChildPath '*') -DestinationPath "$TargetPath.epub" -Update
     if (Test-Path -LiteralPath "$TargetPath.epub") { return $true }
     else { return $false }
@@ -178,7 +183,7 @@ function ConvertFrom-FB2 {
         [switch]$SequenceToTitle
     )
     begin {
-        # preparing temp folder
+        # prepare temp folder
         $temppath = Join-Path -Path $Env:temp -ChildPath ('fb2kndl' + ((New-Guid).Guid -replace '-', ''))
         New-Item -Path $temppath -ItemType Directory | Out-Null
     }
@@ -187,6 +192,7 @@ function ConvertFrom-FB2 {
             $sourcefile = Get-Item -LiteralPath $_
             Write-Host $sourcefile.Name -ForegroundColor Magenta
             $fb2path = $sourcefile.FullName
+            # unpack fb2.zip
             if ($sourcefile.Extension -eq '.fb2z') {
                 $expandarchive = @{
                     LiteralPath = $sourcefile
@@ -197,6 +203,7 @@ function ConvertFrom-FB2 {
                 $fb2path = (Move-Item -LiteralPath $archivefb2path -Destination $temppath -PassThru).FullName
                 Remove-Item -LiteralPath (Join-Path -Path $temppath -ChildPath 'fb2zip') -Recurse -Force
             }
+            # get title-info of fb2
             $fb2titleinfo = ((Get-Content -LiteralPath $fb2path) -as [xml]).FictionBook.description.'title-info'
             if ($fb2titleinfo.author.Count -eq 1) { $author = $fb2titleinfo.author } else { $author = $fb2titleinfo.author[0] }
             $fb2info = [PSCustomObject]@{
@@ -211,6 +218,7 @@ function ConvertFrom-FB2 {
             }
             Clear-Variable -Name 'fb2titleinfo', 'author'
             if ($targetpath = ConvertTo-xHtml -FB2Path $fb2path -TempPath $temppath -Cover:$ToEPUB) {
+                # add short sequence to book title
                 if ($SequenceToTitle -and $fb2info.Sequence) {
                     Write-Host ' Add sequence to book title.. ' -NoNewline
                     try {
@@ -225,6 +233,7 @@ function ConvertFrom-FB2 {
                     $ext = (ConvertTo-Mobi -TargetPath $targetpath -ErrorLogPath "$($sourcefile.FullName).log") ? 'mobi' : $false
                 } elseif ($ToEPUB) { $ext = (ConvertTo-ePub -TargetPath $targetpath) ? 'epub' : $false }
                 if ($ext) {
+                    # transliterate from ru to en
                     if ($Transliterate) {
                         if ($fb2info.Sequence) { $basename = "{0} {1} - {2}" -f $fb2info.Sequence.Name, $fb2info.Sequence.Number, $fb2info.Title }
                         else { $basename = $fb2info.Title }
@@ -235,6 +244,7 @@ function ConvertFrom-FB2 {
                         $basename = Join-Path -Path $van -ChildPath (Set-ValidName -Name $basename)
                         Clear-Variable -Name 'van'
                     } else { $basename = $sourcefile.BaseName }
+                    # move result file to final destination
                     Move-Item -LiteralPath "$targetpath.$ext" -Destination (Join-Path -Path $sourcefile.Directory.FullName -ChildPath "$basename.$ext") -Force
                     Write-Host 'ok' -ForegroundColor Green
                 } else { Write-Host 'failed' -ForegroundColor Red }
