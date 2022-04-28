@@ -2,7 +2,9 @@ function Get-Chrome {
     [CmdletBinding()]
     param (
         [Alias('c')][ValidateSet('stable', 'beta', 'dev', 'canary')]
-        [string]$Channel
+        [string]$Channel,
+        [Alias('x')]
+        [switch]$Extract
     )
     $request_json = @"
 {
@@ -28,6 +30,16 @@ function Get-Chrome {
             }
             try { Start-BitsTransfer @bits }
             catch { throw 'BITS failed. Try again.' }
+            if ($Extract) {
+                7z x $bits.Destination -aoa -bso0 -bsp1 -y
+                7z x 'chrome.7z' -aoa -bso0 -bsp1 -y
+                Rename-Item -LiteralPath 'Chrome-bin' -NewName 'App'
+                'chrome.7z', $bits.Destination,
+                    "App\$($app.updatecheck.manifest.version)\default_apps",
+                    "App\$($app.updatecheck.manifest.version)\Extensions",
+                    "App\$($app.updatecheck.manifest.version)\WidevineCdm" | Remove-Item -Recurse -Force
+                Get-ChildItem -Path "App\$($app.updatecheck.manifest.version)\Locales\*.pak" -Exclude 'en-US.pak' | Remove-Item -Force
+            }
         } else {
             $response_json.response.app | Format-Table @{ Label = 'Channel'; Expression = { $_.cohortname }}, @{ Label = 'Version'; Expression = { $_.updatecheck.manifest.version }}
         }
