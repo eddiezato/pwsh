@@ -159,7 +159,7 @@ function Get-Edge {
             Write-Host "Downloading..." -NoNewLine
             $Release = $Response | Where-Object { $_.FileId.ToLower() -eq "microsoftedge_$($Architecture)_$($Version).exe" }
             $edgebits = @{
-                Source = $Release.Url
+                Source = "{0}&mkt={1}" -f $Release.Url, (Get-WinSystemLocale).Name
                 Destination = "msedge_$($Architecture)_$($Channel)_$($Version).exe"
                 DisplayName = "$Channel $Version"
                 Description = "{0} MiB" -f [Math]::Round($Release.SizeInBytes / 1MB, 2)
