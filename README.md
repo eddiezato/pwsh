@@ -1,6 +1,8 @@
 # Modules
-**EdgeCheck** - checks and downloads offline installer for *MS Edge* (`Get-Edge`)
+**EdgeCheck** - check and download offline installer for *MS Edge* (`Get-Edge`)
 
-**FB2Kndl** - converts *.fb2* ebooks to *.epub*/*.mobi* (`ConvertFrom-FB2`)
+**FB2Kndl** - convert *.fb2* ebooks to *.epub*/*.mobi* (`ConvertFrom-FB2`)
 
-**GetChrome** - checks and downloads offline installer for *Google Chrome* (`Get-Chrome`)
+**GetChrome** - check and download offline installer for *Google Chrome* (`Get-Chrome`)
+
+**ResizeImageRealESRGAN** - resize images with *[Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)* (`Resize-ImageRealESRGAN`)
