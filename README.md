@@ -5,4 +5,6 @@
 
 **GetChrome** - check and download offline installer for *Google Chrome* (`Get-Chrome`)
 
+**PSSteamIdle** - idle steam games without installing (`Start-SteamIdle`)
+
 **ResizeImageRealESRGAN** - resize images with *[Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)* (`Resize-ImageRealESRGAN`)
