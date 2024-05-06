@@ -7,4 +7,6 @@
 
 **PSSteamIdle** - idle steam games without installing (`Start-SteamIdle`)
 
+**RenameMany** - batch rename files (`Rename-Many`)
+
 **ResizeImageRealESRGAN** - resize images with *[Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)* (`Resize-ImageRealESRGAN`)
